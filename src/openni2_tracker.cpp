@@ -11,7 +11,7 @@ V4:   Hand gesture recongnition.
 #include <ros/package.h>
 #include <tf/transform_broadcaster.h>
 #include <kdl/frames.hpp>
-#include "geometry_msgs/Point.h" //added
+#include "geometry_msgs/Point.h" // 
 #include "std_msgs/String.h"
 #include <sstream>
 
@@ -19,7 +19,7 @@ V4:   Hand gesture recongnition.
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <NiTE.h>
+#include <NiTE.h> // include header
 
 using std::string;
 using geometry_msgs::Point; //added
@@ -30,32 +30,38 @@ using namespace std;
 #define USER_MESSAGE(msg) \
 	{printf("[%08llu] User #%d:\t%s\n",ts, user.getId(),msg);}
 bool g_visibleUsers[MAX_USERS] = {false};
+
 nite::SkeletonState g_skeletonStates[MAX_USERS] = {nite::SKELETON_NONE};
-nite::UserTracker userTracker;
-nite::Status niteRc;
-ros::Publisher position_pub,position_pub1; // define publisher topic
-geometry_msgs::Point position; //ws 
-float flag=0;
-nite::HandTracker mHandTracker;
-nite::UserTrackerFrameRef userTrackerFrame;
+
+ros::Publisher position_pub,position_pub1; // for pub skeleton position
+geometry_msgs::Point position; // added 
+
+float flag=0; // mark different kinds of detected hand gestures to perform specific tasks
+
+nite::UserTracker userTracker; // usertracker
+nite::HandTracker mHandTracker; // handtracker
+
+nite::UserTrackerFrameRef userTrackerFrame; // 
 nite::HandTrackerFrameRef mHandFrame;
 
+nite::Status niteRc; // 
+/**************************************/
 void updateUserState(const nite::UserData& user, unsigned long long ts);
-void skeletonTracker();
-void gestureDetection();
+void skeletonTracker(); //
+void gestureDetection(); //
+/**************************************/
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
 
     ros::init(argc, argv, "openni_tracker");
     ros::NodeHandle nh, nh_priv("~");
-    cv::namedWindow( "Skeleton Image");
-
+    cv::namedWindow( "Skeleton Image"); // edit
 
     nite::NiTE::initialize();
 
-
     position_pub = nh.advertise<geometry_msgs::Point>("/tracker/position", 1); // ws
-    position_pub1=nh.advertise<std_msgs::String>("/tracker/position1",1000);
+    position_pub1=nh.advertise<std_msgs::String>("/tracker/position1",1000); // edit
 
 
 	ros::Rate r(20);
@@ -82,16 +88,17 @@ int main(int argc, char **argv) {
 	    gestureDetection();
 	    skeletonTracker();
 	    std_msgs::String msg;
-
-    std::stringstream ss;
-    ss << "position.x "<< position.x; // added 
-    msg.data = ss.str();
+        
+        std::stringstream ss;
+        ss << "position.x "<< position.x; // added 
+        msg.data = ss.str();
 // %EndTag(FILL_MESSAGE)%
 
 // %Tag(ROSCONSOLE)%
    // ROS_INFO("%s", msg.data.c_str());
-    position_pub1.publish(msg); // added 
-    ros::spinOnce();
+        
+        position_pub1.publish(msg); // added 
+        ros::spinOnce();
 		r.sleep();
 	}
 	return 0;
@@ -114,7 +121,7 @@ void gestureDetection() // pub tasks to robots according to gestures and pub coo
                 if(rGesture.getType()==nite::GESTURE_CLICK)
                 {
                     printf("前进并收回手势---click");
-                    flag=1;
+                    flag=1; //　perform specific tasks according to the flag
                 }
                 else if(rGesture.getType()==nite::GESTURE_WAVE)
                 {
@@ -145,7 +152,8 @@ void skeletonTracker()
      niteRc = userTracker.readFrame(&userTrackerFrame);
 		if (niteRc == nite::STATUS_OK)
 		{
-		    const cv::Mat mHandDepth( userTrackerFrame.getDepthFrame().getHeight(), userTrackerFrame.getDepthFrame().getWidth(), CV_16UC1,
+		    //***　mHandDepth ???
+            const cv::Mat mHandDepth( userTrackerFrame.getDepthFrame().getHeight(), userTrackerFrame.getDepthFrame().getWidth(), CV_16UC1,
             (void*)userTrackerFrame.getDepthFrame().getData());
             cv::imshow( "Skeleton Image", mHandDepth );
             // 为了让深度图像显示的更加明显一些，将CV_16UC1 ==> CV_8U格式
@@ -153,6 +161,7 @@ void skeletonTracker()
             mHandDepth.convertTo( mScaledHandDepth, CV_8U, 255.0 / 10000 );
             // 二值化处理，为了显示效果明显
             cv::threshold(mScaledHandDepth, thresholdDepth, 50, 255, 0);
+            // ****
 
 			const nite::Array<nite::UserData>& users = userTrackerFrame.getUsers();
 			for (int i = 0; i < users.getSize(); ++i)
@@ -177,13 +186,11 @@ void skeletonTracker()
                         position.x=head.getPosition().x/1000;
                         position.y=head.getPosition().y/1000;
                         position.z=head.getPosition().z/1000;
-                        //position.angular.x=depth_x; // ??
-                        //position.angular.y=depth_y;
-                        //position.angular.z=flag;
-                        //printf("%d. (%5.2f, %5.2f, %5.2f) (%5.2f,%5.2f) flag=%f\n", user.getId(), position.linear.x, head.getPosition().y, head.getPosition().z,depth_x,depth_y,flag);
+
                         position_pub.publish(position);
                     }
 
+                    // ** 
                     cv::Point point((int)depth_x, (int)depth_y);
                     circle(thresholdDepth, point, 50, CV_RGB(255,0,0));
                     circle(thresholdDepth, point, 30, CV_RGB(0,255,0));
