@@ -1,14 +1,14 @@
-// STL Header
-#include <iostream>
- 
+#include <ros/ros.h>
+#include <iostream> // STL Header
 // 1. include NiTE Header
 #include <NiTE.h>
- 
-// using namespace
-using namespace std;
+using namespace std; // using namespace
  
 int main( int argc, char** argv )
 {
+  ros::init(argc, argv, "human_detection");
+  ros::NodeHandle nh, nh_priv("~");
+  
   // 2. initialize NiTE
   nite::NiTE::initialize();
  
@@ -17,7 +17,9 @@ int main( int argc, char** argv )
   mUserTracker.create();
  
   nite::UserTrackerFrameRef mUserFrame;
-  for( int i = 0; i < 300; ++ i )
+
+  ros::Rate r(10);
+  while(ros::ok()) // just detect 300 times!
   {
     // 4. get user frame
     mUserTracker.readFrame( &mUserFrame );
@@ -32,7 +34,12 @@ int main( int argc, char** argv )
       if( rUser.isLost() )
         cout << "User [" << rUser.getId()  << "] lost." << endl;
     }
+    
+    ros::spinOnce();
+		r.sleep();
   }
+
+
   nite::NiTE::shutdown();
  
   return 0;

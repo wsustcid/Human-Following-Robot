@@ -1,6 +1,8 @@
-// STL Header 
-#include  <iostream> 
+#include <ros/ros.h>
+#include  <iostream>
+
 // OpenCV Header 
+//#include "opencv2/opencv.hpp"
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp> 
 #include <opencv2/imgproc/imgproc.hpp> 
@@ -14,8 +16,13 @@
 using namespace std;
 using namespace openni;
 using namespace nite;
+
 int main( int argc, char **argv )  
 {
+
+  ros::init(argc, argv, "human_show");
+  ros::NodeHandle nh, nh_priv("~");
+
   // o2. Initial OpenNI 
   OpenNI ::initialize();
 
@@ -63,10 +70,12 @@ int main( int argc, char **argv )
   // p1. start  
   mColorStream.start ();
   mDepthStream.start ();
-  
-  while ( true )
+
+  ros::Rate r(10);
+  while (ros::ok())
   {
     // main loop  
+
     // p2. prepare background 
     cv::Mat cImageBGR;
     
@@ -86,9 +95,11 @@ int main( int argc, char **argv )
  
     // p4. get users data 
     const nite:: Array < UserData >& aUsers = mUserFrame.getUsers();
-    for ( int i = 0; i < aUsers.getSize(); ++ i )
+    for ( int i = 0; i < aUsers.getSize(); ++ i ) // does following tasks for every user
     {
+        // assign an id for every user 
         const  UserData & rUser = aUsers[i];
+
         // p4a. check user status 
         if ( rUser.isNew () )
         {
@@ -131,6 +142,8 @@ int main( int argc, char **argv )
                 }
  
                 // p4e. draw line 
+                
+                /* // blue
                 cv::line( cImageBGR, aPoint[ 0], aPoint[ 1], cv::Scalar ( 255, 0, 0 ), 3 );
                 cv::line( cImageBGR, aPoint[ 1], aPoint[ 2], cv::Scalar ( 255, 0, 0 ), 3 );
                 cv::line( cImageBGR, aPoint[ 1], aPoint[ 3], cv::Scalar ( 255, 0, 0 ), 3 );
@@ -145,14 +158,31 @@ int main( int argc, char **argv )
                 cv::line( cImageBGR, aPoint[10], aPoint[12], cv::Scalar ( 255, 0, 0 ), 3 );
                 cv::line( cImageBGR, aPoint[11], aPoint[13], cv::Scalar ( 255, 0, 0 ), 3 );
                 cv::line( cImageBGR, aPoint[12], aPoint[14], cv::Scalar ( 255, 0, 0 ), 3 );
-                
+                */
+
+                // yellow
+                cv::line( cImageBGR, aPoint[ 0], aPoint[ 1], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 1], aPoint[ 2], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 1], aPoint[ 3], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 2], aPoint[ 4], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 3], aPoint[ 5], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 4], aPoint[ 6], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 5], aPoint[ 7], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 1], aPoint[ 8], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 8], aPoint[ 9], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 8], aPoint[10], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[ 9], aPoint[11], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[10], aPoint[12], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[11], aPoint[13], cv::Scalar ( 0, 255, 255 ), 5 );
+                cv::line( cImageBGR, aPoint[12], aPoint[14], cv::Scalar ( 0, 255, 255 ), 5 );
+
                 // p4f. draw joint 
                 for ( int   s = 0; s < 15; ++ s ) 
                 {
                     if ( aJoints[s].getPositionConfidence() > 0.5 )
-                        cv::circle( cImageBGR, aPoint[s], 3, cv::Scalar ( 0, 0, 255 ), 2 );
+                        cv::circle( cImageBGR, aPoint[s], 6, cv::Scalar ( 0, 0, 255 ), 4 );
                     else 
-                        cv::circle( cImageBGR, aPoint[s], 3, cv::Scalar ( 0, 255, 0 ), 2 );
+                        cv::circle( cImageBGR, aPoint[s], 6, cv::Scalar ( 0, 255, 0 ), 4 );
                 }
             }
         }
@@ -164,6 +194,9 @@ int main( int argc, char **argv )
     // p6. check keyboard 
     if ( cv ::waitKey( 1 ) == 'q' )
        break ;  
+
+    ros::spinOnce();
+    r.sleep();
   }
   
   // p7. stop
