@@ -86,7 +86,7 @@ find_library(Nite2_LIBRARY
          PATH_SUFFIXES lib)
 ```
 
-Test: running the openni2_tracker **under the following directory: /home/package/NiTE-Linux-x64-2.2/Redist**
+<font color=blue> **Test:** The openni2_tracker nodes  should be executed in the following directory: /home/package/NiTE-Linux-x64-2.2/Redist </font>
 
 ```language
 rosrun openni2_tracker openni2_tracker

@@ -74,7 +74,7 @@ int main( int argc, char **argv )
   mUserTracker.setSkeletonSmoothingFactor( 0.1f );
   
   // create OpenCV Window 
-  cv::namedWindow("User Image", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("User Image", CV_WINDOW_NORMAL); // the size of window can be adjusted.
  
   // p1. start  
   mColorStream.start ();

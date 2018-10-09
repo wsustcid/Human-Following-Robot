@@ -59,6 +59,10 @@ add_executable(human_show src/human_show.cpp)
 add_dependencies(human_show ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(human_show ${catkin_LIBRARIES} ${OpenNI2_LIBRARIES} ${Nite2_LIBRARY} ${OpenCV_LIBRARIES})
 
+add_executable(human_tracker_show src/human_tracker_show.cpp)
+add_dependencies(human_tracker_show ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(human_tracker_show ${catkin_LIBRARIES} ${OpenNI2_LIBRARIES} ${Nite2_LIBRARY} ${OpenCV_LIBRARIES})
+
 
 #add_executable(human_tracker
 #  src/human_tracker.cpp
